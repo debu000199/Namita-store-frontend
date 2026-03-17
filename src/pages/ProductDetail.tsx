@@ -88,7 +88,7 @@ const ProductDetail = () => {
   return (
     <Layout>
       <div className="container py-8 md:py-12">
-        {/* ✅ Breadcrumb (SAFE CLICKABLE) */}
+        {/* ✅ Breadcrumb (FIXED HERE) */}
         <nav className="mb-6 text-sm text-muted-foreground" aria-label="Breadcrumb">
           <Link to="/" className="hover:text-foreground transition-colors">
             Home
@@ -97,7 +97,7 @@ const ProductDetail = () => {
           <span className="mx-2">/</span>
 
           <Link
-            to={categorySlug ? `/?category=${categorySlug}` : "/"}
+            to={categorySlug ? `/category/${categorySlug}` : "/"}
             className="hover:text-foreground transition-colors capitalize"
           >
             {categoryName}
