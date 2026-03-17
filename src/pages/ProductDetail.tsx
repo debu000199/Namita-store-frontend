@@ -15,16 +15,30 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const addItem = useCartStore((s) => s.addItem);
 
-  // ✅ Safe category handling
-  const categorySlug =
-    typeof product?.category === "object" && product?.category !== null
-      ? product.category.slug
-      : null;
+  // ✅ FIXED: Robust category handling to prevent '/' fallback or 'undefined'
+  let categorySlug = null;
+  let categoryName = "Category";
 
-  const categoryName =
-    typeof product?.category === "object" && product?.category !== null
-      ? product.category.name
-      : "Category";
+  if (product?.category) {
+    if (typeof product.category === "string") {
+      // Handles if the API returns a simple string ID or slug
+      categorySlug = product.category;
+      categoryName = product.category;
+    } else if (typeof product.category === "object") {
+      // Handles if the API returns a populated object
+      categoryName = product.category.name || product.category.title || "Category";
+      
+      if (typeof product.category.slug === "string") {
+        categorySlug = product.category.slug;
+      } else if (product.category.slug?.current) {
+        // Handles nested slug objects (e.g., Sanity CMS)
+        categorySlug = product.category.slug.current;
+      } else {
+        // Fallback to _id if no slug is found
+        categorySlug = product.category._id || null;
+      }
+    }
+  }
 
   // ✅ Safe variants handling
   const variants = Array.isArray(product?.variants)
@@ -88,7 +102,7 @@ const ProductDetail = () => {
   return (
     <Layout>
       <div className="container py-8 md:py-12">
-        {/* ✅ Breadcrumb (FIXED HERE) */}
+        {/* Breadcrumb */}
         <nav className="mb-6 text-sm text-muted-foreground" aria-label="Breadcrumb">
           <Link to="/" className="hover:text-foreground transition-colors">
             Home
