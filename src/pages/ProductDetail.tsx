@@ -69,7 +69,7 @@ const ProductDetail = () => {
         <nav className="mb-6 text-sm text-muted-foreground" aria-label="Breadcrumb">
           <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
           <span className="mx-2">/</span>
-          <Link to={`/?category=${product.category.slug}`} className="hover:text-foreground transition-colors capitalize">
+          <Link to={`/?category=${product.category.name}`} className="hover:text-foreground transition-colors capitalize">
             {product.category.name}
           </Link>
           <span className="mx-2">/</span>
