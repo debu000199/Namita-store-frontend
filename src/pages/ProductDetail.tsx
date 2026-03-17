@@ -15,39 +15,8 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const addItem = useCartStore((s) => s.addItem);
 
-  // ✅ FIXED: Robust category handling to prevent '/' fallback or 'undefined'
-  let categorySlug = null;
-  let categoryName = "Category";
-
-  if (product?.category) {
-    if (typeof product.category === "string") {
-      // Handles if the API returns a simple string ID or slug
-      categorySlug = product.category;
-      categoryName = product.category;
-    } else if (typeof product.category === "object") {
-      // Handles if the API returns a populated object
-      categoryName = product.category.name || product.category.title || "Category";
-      
-      if (typeof product.category.slug === "string") {
-        categorySlug = product.category.slug;
-      } else if (product.category.slug?.current) {
-        // Handles nested slug objects (e.g., Sanity CMS)
-        categorySlug = product.category.slug.current;
-      } else {
-        // Fallback to _id if no slug is found
-        categorySlug = product.category._id || null;
-      }
-    }
-  }
-
-  // ✅ Safe variants handling
-  const variants = Array.isArray(product?.variants)
-    ? product.variants.filter(
-        (v): v is ProductVariant =>
-          typeof v === "object" && v !== null && "_id" in v
-      )
-    : [];
-
+  // Set initial variant when product loads
+  const variants = Array.isArray(product?.variants) ? product.variants.filter((v): v is ProductVariant => typeof v !== "string") : [];
   const activeVariant = selectedVariant || variants[0] || null;
 
   if (isLoading) {
@@ -80,12 +49,8 @@ const ProductDetail = () => {
       <Layout>
         <div className="container flex flex-col items-center justify-center py-20 text-center">
           <h1 className="font-display text-2xl">Product Not Found</h1>
-          <p className="mt-2 text-muted-foreground">
-            The product you're looking for doesn't exist.
-          </p>
-          <Link to="/" className="mt-6 text-sm text-primary hover:underline">
-            ← Back to shop
-          </Link>
+          <p className="mt-2 text-muted-foreground">The product you're looking for doesn't exist.</p>
+          <Link to="/" className="mt-6 text-sm text-primary hover:underline">← Back to shop</Link>
         </div>
       </Layout>
     );
@@ -94,8 +59,6 @@ const ProductDetail = () => {
   const handleAddToCart = () => {
     if (activeVariant) {
       addItem(product, activeVariant, quantity);
-    } else {
-      console.warn("No valid variant available", product?.variants);
     }
   };
 
@@ -104,43 +67,31 @@ const ProductDetail = () => {
       <div className="container py-8 md:py-12">
         {/* Breadcrumb */}
         <nav className="mb-6 text-sm text-muted-foreground" aria-label="Breadcrumb">
-          <Link to="/" className="hover:text-foreground transition-colors">
-            Home
-          </Link>
-
+          <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
           <span className="mx-2">/</span>
-
-          <Link
-            to={categorySlug ? `/category/${categorySlug}` : "/"}
-            className="hover:text-foreground transition-colors capitalize"
-          >
-            {categoryName}
+          <Link to={`/?category=${product.category.slug}`} className="hover:text-foreground transition-colors capitalize">
+            {product.category.name}
           </Link>
-
           <span className="mx-2">/</span>
-
           <span className="text-foreground">{product.title}</span>
         </nav>
 
         <div className="grid gap-8 md:grid-cols-2 md:gap-12">
-          {/* Images */}
+          {/* Image gallery */}
           <div className="space-y-3">
             <ProductImage
-              src={product.images?.[selectedImage] || product.images?.[0] || ""}
+              src={product.images[selectedImage] || product.images[0] || ""}
               alt={product.title}
               className="aspect-square rounded-lg"
             />
-
-            {product.images?.length > 1 && (
+            {product.images.length > 1 && (
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {product.images.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedImage(idx)}
                     className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border-2 transition-colors ${
-                      selectedImage === idx
-                        ? "border-primary"
-                        : "border-transparent hover:border-border"
+                      selectedImage === idx ? "border-primary" : "border-transparent hover:border-border"
                     }`}
                   >
                     <img src={img} alt="" className="h-full w-full object-cover" />
@@ -153,13 +104,11 @@ const ProductDetail = () => {
           {/* Details */}
           <div className="flex flex-col">
             <p className="text-xs uppercase tracking-wider text-muted-foreground">
-              {categoryName}
+              {product.category.name}
             </p>
-
             <h1 className="mt-2 font-display text-3xl font-semibold md:text-4xl">
               {product.title}
             </h1>
-
             {activeVariant && (
               <p className="mt-3 text-xl font-body font-medium text-foreground">
                 {formatPrice(getVariantPrice(activeVariant))}
@@ -198,16 +147,16 @@ const ProductDetail = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="rounded-lg border px-3 py-1.5 text-sm hover:bg-secondary"
+                  className="rounded-lg border px-3 py-1.5 text-sm hover:bg-secondary transition-colors"
+                  aria-label="Decrease quantity"
                 >
                   −
                 </button>
-
                 <span className="w-8 text-center text-sm">{quantity}</span>
-
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="rounded-lg border px-3 py-1.5 text-sm hover:bg-secondary"
+                  className="rounded-lg border px-3 py-1.5 text-sm hover:bg-secondary transition-colors"
+                  aria-label="Increase quantity"
                 >
                   +
                 </button>
@@ -217,23 +166,17 @@ const ProductDetail = () => {
             {/* Add to cart */}
             <button
               onClick={handleAddToCart}
-              disabled={
-                !activeVariant ||
-                (activeVariant.stock !== undefined && activeVariant.stock === 0)
-              }
-              className="mt-8 w-full rounded-lg bg-primary py-3.5 text-sm font-medium text-primary-foreground disabled:opacity-50"
+              disabled={!activeVariant || (activeVariant.stock !== undefined && activeVariant.stock === 0)}
+              className="mt-8 w-full rounded-lg bg-primary py-3.5 text-sm font-medium text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {activeVariant?.stock === 0 ? "Out of Stock" : "Add to Bag"}
             </button>
 
-            {activeVariant &&
-              activeVariant.stock !== undefined &&
-              activeVariant.stock <= 5 &&
-              activeVariant.stock > 0 && (
-                <p className="mt-2 text-xs text-primary text-center">
-                  Only {activeVariant.stock} left in stock
-                </p>
-              )}
+            {activeVariant && activeVariant.stock !== undefined && activeVariant.stock <= 5 && activeVariant.stock > 0 && (
+              <p className="mt-2 text-xs text-primary text-center">
+                Only {activeVariant.stock} left in stock
+              </p>
+            )}
           </div>
         </div>
       </div>
