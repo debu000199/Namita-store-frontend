@@ -15,7 +15,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const addItem = useCartStore((s) => s.addItem);
 
-  // ✅ SAFE CATEGORY HANDLING (fix for prod issue)
+  // ✅ Safe category handling
   const categorySlug =
     typeof product?.category === "object" && product?.category !== null
       ? product.category.slug
@@ -26,7 +26,7 @@ const ProductDetail = () => {
       ? product.category.name
       : "Category";
 
-  // ✅ SAFE VARIANTS HANDLING (fix for prod issue)
+  // ✅ Safe variants handling
   const variants = Array.isArray(product?.variants)
     ? product.variants.filter(
         (v): v is ProductVariant =>
@@ -88,7 +88,7 @@ const ProductDetail = () => {
   return (
     <Layout>
       <div className="container py-8 md:py-12">
-        {/* ✅ Breadcrumb FIXED */}
+        {/* ✅ Breadcrumb (SAFE CLICKABLE) */}
         <nav className="mb-6 text-sm text-muted-foreground" aria-label="Breadcrumb">
           <Link to="/" className="hover:text-foreground transition-colors">
             Home
@@ -96,18 +96,15 @@ const ProductDetail = () => {
 
           <span className="mx-2">/</span>
 
-          {categorySlug ? (
-            <Link
-              to={`/?category=${categorySlug}`}
-              className="hover:text-foreground transition-colors capitalize"
-            >
-              {categoryName}
-            </Link>
-          ) : (
-            <span className="capitalize">{categoryName}</span>
-          )}
+          <Link
+            to={categorySlug ? `/?category=${categorySlug}` : "/"}
+            className="hover:text-foreground transition-colors capitalize"
+          >
+            {categoryName}
+          </Link>
 
           <span className="mx-2">/</span>
+
           <span className="text-foreground">{product.title}</span>
         </nav>
 
