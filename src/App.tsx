@@ -18,6 +18,7 @@ import AdminProductEdit from "./pages/AdminProductEdit";
 import AdminOrderDetail from "./pages/AdminOrderDetail";
 import NotFound from "./pages/NotFound";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 // In-memory cache: data stays fresh for 2 min, kept in memory for 10 min after last use.
 // gcTime must be > staleTime so cached data is still available while revalidating.
@@ -85,6 +86,7 @@ const App = () => (
         </AuthInit>
       </BrowserRouter>
       <Analytics />
+      <SpeedInsights />
     </TooltipProvider>
   </PersistQueryClientProvider>
 );
