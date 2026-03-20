@@ -7,6 +7,7 @@ import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persist
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { useAuthStore } from "@/lib/authStore";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import Index from "./pages/Index";
 import ProductDetail from "./pages/ProductDetail";
 import Login from "./pages/Login";
@@ -83,6 +84,7 @@ const App = () => (
           </Routes>
         </AuthInit>
       </BrowserRouter>
+      <SpeedInsights />
     </TooltipProvider>
   </PersistQueryClientProvider>
 );
