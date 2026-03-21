@@ -2,7 +2,7 @@ import { mockApi } from "./mockApi";
 import type { Product } from "./types";
 
 const USE_MOCK_API = false;
-const API_BASE_URL = "https://eapi.devsubhadipbag.in";
+const API_BASE_URL = "https://eapi-eshop-app.vercel.app";
 // const API_BASE_URL = "";
 // const API_BASE_URL = "http://localhost:3030"
 
