@@ -2,7 +2,7 @@ import { mockApi } from "./mockApi";
 import type { Product } from "./types";
 
 const USE_MOCK_API = false;
-const API_BASE_URL = "https://this-be-also-build-by-other.vercel.app";
+const API_BASE_URL = "https://namita-store-backend.vercel.app";
 
 export const api = {
   getProducts: (params?: { q?: string; category?: string; page?: number; limit?: number }) => {
