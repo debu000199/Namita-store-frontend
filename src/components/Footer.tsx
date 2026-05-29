@@ -38,7 +38,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="mt-10 border-t pt-6 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Force fully develop by <a href="https://github.com/SubhadipD9" target="_blank">SubhadipD9</a>.
+          © {new Date().getFullYear()} Design and Develop by <a href="https://github.com/SubhadipD9" target="_blank">SubhadipD9</a>.
         </div>
       </div>
     </footer>
